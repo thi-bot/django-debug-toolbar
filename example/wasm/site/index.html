@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Django Debug Toolbar demo</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      body {
+        max-width: 40rem;
+        margin: 3rem auto;
+        padding: 0 1rem;
+      }
+      #log {
+        font-family: ui-monospace, monospace;
+        font-size: 0.875rem;
+        padding-left: 1.25rem;
+      }
+      #log li:last-child:not(.error)::after {
+        content: " ⏳";
+      }
+      .error {
+        color: #c00;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Django Debug Toolbar, in your browser</h1>
+    <p>
+      This demo runs the toolbar's example Django project entirely in your
+      browser, using WebAssembly (<a href="https://pyodide.org/">Pyodide</a>)
+      and a Service Worker. There is no server-side code: the database is a
+      SQLite file stored in your browser.
+    </p>
+    <p>
+      The first visit downloads around 20 MB. Log in to the admin with
+      username <code>admin</code> and password <code>admin</code>.
+    </p>
+    <ol id="log" aria-live="polite"></ol>
+    <script>
+      const log = document.getElementById("log");
+      const report = (text, isError = false) => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        item.classList.toggle("error", isError);
+        log.append(item);
+      };
+
+      if (!("serviceWorker" in navigator)) {
+        report("This browser doesn't support Service Workers.", true);
+      } else {
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          const { type, text } = event.data;
+          if (type === "status") report(text);
+          if (type === "error") report(`Error: ${text}`, true);
+        });
+        // The service worker claims this page once Django is ready.
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          location.reload();
+        });
+        report("Registering the service worker…");
+        navigator.serviceWorker.register("sw.js", { type: "module" }).then(
+          (registration) => {
+            // Already installed, but this page isn't controlled (e.g. after
+            // a hard reload): ask the worker to take over.
+            if (registration.active && !registration.installing && !registration.waiting) {
+              registration.active.postMessage("claim");
+            }
+          },
+          (error) => report(`Service worker registration failed: ${error}`, true),
+        );
+      }
+    </script>
+  </body>
+</html>

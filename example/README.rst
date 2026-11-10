@@ -57,3 +57,13 @@ Install [Daphne](https://pypi.org/project/daphne/) first:
 Then run the Django development server:
 
     $ ASYNC_SERVER=true python example/manage.py runserver
+
+In the browser, with WebAssembly
+--------------------------------
+
+The example project can also run entirely in the browser, with no server-side
+code, thanks to `Pyodide <https://pyodide.org/>`_ and a Service Worker::
+
+    $ make example_wasm
+
+See ``example/wasm/README.rst`` for details.

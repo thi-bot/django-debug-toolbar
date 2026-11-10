@@ -1,4 +1,4 @@
-.PHONY: example test coverage translatable_strings update_translations help
+.PHONY: example example_wasm test coverage translatable_strings update_translations help
 .DEFAULT_GOAL := help
 
 example:  ## Run the example application
@@ -12,6 +12,9 @@ example_async:
 	-DJANGO_SUPERUSER_PASSWORD=p python example/manage.py createsuperuser \
 		--noinput --username="$(USER)" --email="$(USER)@mailinator.com"
 	daphne example.asgi:application
+
+example_wasm:  ## Run the example application in the browser, with WebAssembly
+	python example/wasm/build.py --serve
 
 example_test:  ## Run the test suite for the example application
 	python example/manage.py test example
