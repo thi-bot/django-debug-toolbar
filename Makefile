@@ -14,7 +14,7 @@ example_async:
 	daphne example.asgi:application
 
 example_wasm:  ## Run the example application in the browser, with WebAssembly
-	python example/wasm/build.py --serve
+	uv run --no-project example/wasm/build.py --serve
 
 example_test:  ## Run the test suite for the example application
 	python example/manage.py test example
